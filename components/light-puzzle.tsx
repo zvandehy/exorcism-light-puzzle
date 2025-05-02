@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { RotateCw, Lightbulb, RefreshCw, ChevronRight, ChevronLeft, Play, Pause } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ChevronRight, Lightbulb, Pause, Play, RefreshCw } from "lucide-react"
+import { useEffect, useState } from "react"
 
 // Define the State class similar to the Python implementation
 class PuzzleState {
@@ -120,241 +120,133 @@ function bfsSolve(startState: PuzzleState): number[] | null {
 }
 
 export function LightPuzzle() {
-  const [state, setState] = useState<PuzzleState>(PuzzleState.newRandomState())
-  const [solution, setSolution] = useState<number[] | null>(null)
-  const [showSolution, setShowSolution] = useState(false)
-  const [currentSolutionStep, setCurrentSolutionStep] = useState(-1)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false)
-  const [moveCount, setMoveCount] = useState(0)
-
-  // Calculate solution when state changes
-  useEffect(() => {
-    const newSolution = bfsSolve(state)
-    setSolution(newSolution)
-    setCurrentSolutionStep(-1)
-  }, [state])
-
-  // Auto-play solution
-  useEffect(() => {
-    if (!isAutoPlaying || !solution || currentSolutionStep >= solution.length - 1) {
-      return
+    const [state, setState] = useState(PuzzleState.newRandomState())
+    const [solution, setSolution] = useState<number[] | null>(null)
+    const [showSolution, setShowSolution] = useState(false)
+    const [step, setStep] = useState(-1)
+    const [auto, setAuto] = useState(false)
+    const [moves, setMoves] = useState(0)
+  
+    useEffect(() => {
+      setSolution(bfsSolve(state))
+      setStep(-1)
+    }, [state])
+  
+    useEffect(() => {
+      if (!auto || !solution || step >= solution.length - 1) return
+      const t = setTimeout(() => {
+        const next = step + 1
+        rotate(solution[next])
+        setStep(next)
+        if (next >= solution.length - 1) setAuto(false)
+      }, 800)
+      return () => clearTimeout(t)
+    }, [auto, step, solution])
+  
+    const rotate = (i: number) => {
+      setState(s => s.rotate(i))
+      setMoves(m => m + 1)
+    }
+    const reset = () => {
+      setState(PuzzleState.newRandomState())
+      setShowSolution(false)
+      setStep(-1)
+      setAuto(false)
+      setMoves(0)
     }
 
-    const timer = setTimeout(() => {
-      const nextStep = currentSolutionStep + 1
-      handleRotate(solution[nextStep])
-      setCurrentSolutionStep(nextStep)
-
-      if (nextStep >= solution.length - 1) {
-        setIsAutoPlaying(false)
-      }
-    }, 800)
-
-    return () => clearTimeout(timer)
-  }, [isAutoPlaying, currentSolutionStep, solution])
-
-  // Handle rotation
-  const handleRotate = (chainIndex: number) => {
-    setState(state.rotate(chainIndex))
-    setMoveCount(moveCount + 1)
-  }
-
-  // Reset the puzzle
-  const handleReset = () => {
-    setState(PuzzleState.newRandomState())
-    setShowSolution(false)
-    setCurrentSolutionStep(-1)
-    setIsAutoPlaying(false)
-    setMoveCount(0)
-  }
-
-  // Toggle solution visibility
-  const toggleSolution = () => {
-    setShowSolution(!showSolution)
-    setCurrentSolutionStep(-1)
-    setIsAutoPlaying(false)
-  }
-
-  // Start auto-playing the solution
-  const startAutoPlay = () => {
-    if (solution && solution.length > 0) {
-      setShowSolution(true)
-      setCurrentSolutionStep(-1)
-      setIsAutoPlaying(true)
-    }
-  }
-
-  // Step through solution manually
-  const stepSolution = (direction: "next" | "prev") => {
-    if (!solution || solution.length === 0) return
-
-    if (direction === "next" && currentSolutionStep < solution.length - 1) {
-      const nextStep = currentSolutionStep + 1
-      handleRotate(solution[nextStep])
-      setCurrentSolutionStep(nextStep)
-    } else if (direction === "prev" && currentSolutionStep > -1) {
-      // This is a bit tricky since we need to reconstruct the state
-      // We'll reset and replay up to the previous step
-      const targetStep = currentSolutionStep - 1
-
-      // Create a new state from the initial state
-      let newState = new PuzzleState([...state.data])
-      for (let i = 0; i <= targetStep; i++) {
-        newState = newState.rotate(solution[i])
+    const getChainName = (chainIndex: number): string => {
+        switch (chainIndex) {
+          case 0:
+            return "Top"
+          case 1:
+            return "Bottom Left"
+          case 2:
+            return "Bottom Right"
+          default:
+            return "Unknown"
+        }
       }
 
-      setState(newState)
-      setCurrentSolutionStep(targetStep)
-    }
-  }
-
-  // Get the chain name for display
-  const getChainName = (chainIndex: number): string => {
-    switch (chainIndex) {
-      case 0:
-        return "Top"
-      case 1:
-        return "Bottom Left"
-      case 2:
-        return "Bottom Right"
-      default:
-        return "Unknown"
-    }
-  }
-
-  // Render the lights in the specified pattern
-  const renderLights = () => {
-    // Positions of lights in rows of length 2, 3, 4, 3
-    const lightPositions = [
-      [2, 4], // Row 1 (2 lights)
-      [1, 3, 5], // Row 2 (3 lights)
-      [0, 2, 4, 6], // Row 3 (4 lights)
-      [1, 3, 5], // Row 4 (3 lights)
-    ]
-
-    let lightIndex = 0
-
+    const vals = state.data as (0 | 1)[]
+  
     return (
-      <div className="flex flex-col items-center sm:gap-x-3 sm:gap-y-6 mb-6 max-w-full">
-      <div className="flex sm:gap-x-3 sm:gap-y-6 my-2 sm:my-4">
-        <div className="w-8 h-8 sm:w-12 sm:h-12" />
-        <div className="w-8 h-8 sm:w-12 sm:h-12" />
-        <div className="w-8 h-8 sm:w-12 sm:h-12" />
-        <Button onClick={() => handleRotate(0)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-8 h-8 sm:w-12 sm:h-12 rounded-full">
-          </Button>
-        <div className="w-8 h-8 sm:w-12 sm:h-12" />
-        <div className="w-8 h-8 sm:w-12 sm:h-12" />
-        <div className="w-8 h-8 sm:w-12 sm:h-12" />
-      </div>
-        {lightPositions.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex sm:gap-x-3 sm:gap-y-6 my-2 sm:my-4 max-w-full">
-          {rowIndex === lightPositions.length-1 && <Button onClick={() => handleRotate(1)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-8 h-8 sm:w-12 sm:h-12 rounded-full">
-          </Button>}
-            {Array.from({ length: 7 }).map((_, colIndex) => {
-              if (row.includes(colIndex)) {
-                const currentLightIndex = lightIndex
-                lightIndex++
-
-                // Check if this light is part of any chain
-                const chainIndices = []
-                for (let i = 0; i < PuzzleState.chains.length; i++) {
-                  if (PuzzleState.chains[i].includes(currentLightIndex)) {
-                    chainIndices.push(i)
-                  }
-                }
-
-                return (
-                  <div
-                    key={rowIndex+"-"+colIndex+"-"+state.data[currentLightIndex]}
-                    className={cn(
-                      "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0",
-                      state.data[currentLightIndex] === 1
-                        ? "bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-                        : "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.7)]",
-                    )}
-                  >
-                    <Lightbulb
-                      className={cn(
-                        "w-4 h-4 sm:w-6 sm:h-6 transition-colors",
-                        state.data[currentLightIndex] === 1 ? "text-white" : "text-white",
-                      )}
-                    />
-                  </div>
-                )
-              } else {
-                return <div key={rowIndex+"-"+colIndex} className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink" />
-              }
-            })}
-            {rowIndex === lightPositions.length-1 && 
-            <Button onClick={() => handleRotate(2)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-8 h-8 sm:w-12 sm:h-12 rounded-full">
-          </Button>}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex flex-col items-center p-6 rounded-xl max-w-xl shadow-lg w-full bg-gray-50 relative">
-      <div className="w-full flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <Button variant="outline" size="sm" onClick={handleReset} className="flex items-center gap-1">
-            <RefreshCw className="w-4 h-4" />
-            New Puzzle
-          </Button>
-        </div>
-        <div className="text-sm font-medium">Moves: {moveCount}</div>
-      </div>
-
-      {state.isSolved() && (
-          <div className="w-full"><div className="p-4 bg-green-200/80 text-green-800 rounded-md text-center">🎉 Puzzle Solved! 🎉</div></div>
-        )}
-      {renderLights()}
-
-      <div className="w-full border-t pt-4">
+      <div className="relative p-6 bg-gray-50 rounded-xl shadow-lg max-w-sm mx-auto">
+        {state.isSolved() && (
+  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+    <div
+      className={cn(
+        "bg-green-600 text-white font-bold uppercase text-lg shadow-lg",
+        "w-full text-center py-2 transform -rotate-45 origin-center"
+      )}
+    >
+      Puzzle Solved!
+    </div>
+  </div>
+)}
         <div className="flex justify-between items-center mb-4">
-          <Button variant="outline" onClick={toggleSolution} className="flex items-center gap-1">
-            {showSolution ? "Hide Solution" : "Show Solution"}
+          <Button variant="outline" size="sm" onClick={reset} className="flex items-center gap-1">
+            <RefreshCw className="w-4 h-4" /> New Puzzle
           </Button>
+          <div className="font-medium text-sm">Moves: {moves}</div>
+        </div>
+  
+        <div className="flex flex-col items-center gap-4">
+        {/* top chain */}
+        <ChainButton chainIndex={0} onRotate={rotate} />
 
-          {showSolution && solution && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => stepSolution("prev")}
-                disabled={currentSolutionStep <= -1}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  if (isAutoPlaying) {
-                    setIsAutoPlaying(false)
-                  } else {
-                    startAutoPlay()
-                  }
-                }}
-              >
-                {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => stepSolution("next")}
-                disabled={currentSolutionStep >= solution.length - 1}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
+        {/* row of 2 */}
+        <div className="flex gap-6 mb-2">
+          <Light on={vals[0]} />
+          <Light on={vals[1]} />
         </div>
 
-        {showSolution && solution && (
+        {/* row of 3 */}
+        <div className="flex gap-6 mb-2">
+          <Light on={vals[2]} />
+          <Light on={vals[3]} />
+          <Light on={vals[4]} />
+        </div>
+
+        {/* row of 4 */}
+        <div className="flex gap-6 mb-2">
+          <Light on={vals[5]} />
+          <Light on={vals[6]} />
+          <Light on={vals[7]} />
+          <Light on={vals[8]} />
+        </div>
+
+        {/* bottom row of 3 with side chains */}
+        <div className="flex items-center gap-6 mb-4">
+          <ChainButton chainIndex={1} onRotate={rotate} />
+          <div className="flex gap-6">
+            <Light on={vals[9]} />
+            <Light on={vals[10]} />
+            <Light on={vals[11]} />
+          </div>
+          <ChainButton chainIndex={2} onRotate={rotate} />
+        </div>
+      </div>
+
+  
+        {/* solution controls */}
+        <div className="border-t pt-4">
+          <div className="flex items-center justify-between mb-2">
+            <Button variant="outline" size="sm" onClick={() => { setShowSolution(s => !s); setAuto(false); setStep(-1) }}>
+              {showSolution ? "Hide" : "Show"} Solution
+            </Button>
+            {showSolution && solution && (
+              <div className="flex items-center gap-2">
+                <Button size="icon" variant="outline" onClick={() => setAuto(a => !a)}>
+                  {auto ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </Button>
+                <Button size="icon" variant="outline" onClick={() => step < (solution.length - 1) && setStep(s => { const n = s + 1; rotate(solution[n]); return n })} disabled={step >= solution.length - 1}>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          {showSolution && solution && (
           <div className="bg-gray-50 p-4 rounded-md">
             <p className="text-sm font-medium mb-2">Solution: {solution.length} moves</p>
             <div className="flex flex-wrap gap-2">
@@ -362,8 +254,7 @@ export function LightPuzzle() {
                 <div
                   key={index}
                   className={cn(
-                    "text-xs px-2 py-1 rounded-md border",
-                    currentSolutionStep === index ? "bg-gray-200 border-gray-400" : "bg-white border-gray-200",
+                    "text-xs px-2 py-1 rounded-md border bg-gray-200 border-gray-400"
                   )}
                 >
                   {index + 1}. {getChainName(move)}
@@ -372,7 +263,41 @@ export function LightPuzzle() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
+
+// 1) Extract a stable Light component
+function Light({ on }: { on: 0 | 1 }) {
+    return (
+      <div
+        className={cn(
+          "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors duration-300",
+          on
+            ? "bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+            : "bg-red-500   shadow-[0_0_15px_rgba(239,68,68,0.7)]"
+        )}
+      >
+        <Lightbulb className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+      </div>
+    )
+  }
+  
+  // 2) Extract the chain‐rotate button
+  function ChainButton({
+    chainIndex,
+    onRotate,
+  }: {
+    chainIndex: number
+    onRotate: (i: number) => void
+  }) {
+    return (
+      <Button
+        onClick={() => onRotate(chainIndex)}
+        className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-8 h-8 sm:w-12 sm:h-12 rounded-full"
+      />
+    )
+  }
+
+  
