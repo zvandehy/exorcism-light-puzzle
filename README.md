@@ -1,0 +1,1 @@
+# exorcism-light-puzzle
