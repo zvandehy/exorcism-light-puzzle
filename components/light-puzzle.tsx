@@ -265,7 +265,7 @@ export function LightPuzzle() {
 
                 return (
                   <div
-                    key={colIndex}
+                    key={rowIndex+"-"+colIndex+"-"+state.data[currentLightIndex]}
                     className={cn(
                       "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0",
                       state.data[currentLightIndex] === 1
@@ -282,7 +282,7 @@ export function LightPuzzle() {
                   </div>
                 )
               } else {
-                return <div key={colIndex} className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink" />
+                return <div key={rowIndex+"-"+colIndex} className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink" />
               }
             })}
             {rowIndex === lightPositions.length-1 && 
@@ -295,7 +295,7 @@ export function LightPuzzle() {
   }
 
   return (
-    <div className="flex flex-col items-center bg-white p-6 rounded-xl max-w-xl shadow-lg w-full bg-gray-50 relative">
+    <div className="flex flex-col items-center p-6 rounded-xl max-w-xl shadow-lg w-full bg-gray-50 relative">
       <div className="w-full flex justify-between items-center mb-4">
         <div className="flex items-center">
           <Button variant="outline" size="sm" onClick={handleReset} className="flex items-center gap-1">
