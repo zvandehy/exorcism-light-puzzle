@@ -1,1 +1,1 @@
-# exorcism-light-puzzle
+# Exorcism Light Puzzle
