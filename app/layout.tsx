@@ -2,9 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Escape Works - Exorcism Light Puzzle',
+  description: 'Test and learn solutions to the light puzzle',
 }
 
 export default function RootLayout({
