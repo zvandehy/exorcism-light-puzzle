@@ -235,20 +235,20 @@ export function LightPuzzle() {
     let lightIndex = 0
 
     return (
-      <div className="flex flex-col items-center gap-x-3 gap-y-6 mb-6">
-      <div className="flex gap-x-3 gap-y-6 my-4">
-        <div className="w-12 h-12" />
-        <div className="w-12 h-12" />
-        <div className="w-12 h-12" />
-        <Button onClick={() => handleRotate(0)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-12 h-12 rounded-full">
+      <div className="flex flex-col items-center sm:gap-x-3 sm:gap-y-6 mb-6 max-w-full">
+      <div className="flex sm:gap-x-3 sm:gap-y-6 my-2 sm:my-4">
+        <div className="w-8 h-8 sm:w-12 sm:h-12" />
+        <div className="w-8 h-8 sm:w-12 sm:h-12" />
+        <div className="w-8 h-8 sm:w-12 sm:h-12" />
+        <Button onClick={() => handleRotate(0)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-8 h-8 sm:w-12 sm:h-12 rounded-full">
           </Button>
-        <div className="w-12 h-12" />
-        <div className="w-12 h-12" />
-        <div className="w-12 h-12" />
+        <div className="w-8 h-8 sm:w-12 sm:h-12" />
+        <div className="w-8 h-8 sm:w-12 sm:h-12" />
+        <div className="w-8 h-8 sm:w-12 sm:h-12" />
       </div>
         {lightPositions.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex gap-x-3 gap-y-6 my-4">
-          {rowIndex === lightPositions.length-1 && <Button onClick={() => handleRotate(1)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-12 h-12 rounded-full">
+          <div key={rowIndex} className="flex sm:gap-x-3 sm:gap-y-6 my-2 sm:my-4 max-w-full">
+          {rowIndex === lightPositions.length-1 && <Button onClick={() => handleRotate(1)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-8 h-8 sm:w-12 sm:h-12 rounded-full">
           </Button>}
             {Array.from({ length: 7 }).map((_, colIndex) => {
               if (row.includes(colIndex)) {
@@ -267,7 +267,7 @@ export function LightPuzzle() {
                   <div
                     key={colIndex}
                     className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
+                      "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0",
                       state.data[currentLightIndex] === 1
                         ? "bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)]"
                         : "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.7)]",
@@ -275,18 +275,18 @@ export function LightPuzzle() {
                   >
                     <Lightbulb
                       className={cn(
-                        "w-6 h-6 transition-colors",
+                        "w-4 h-4 sm:w-6 sm:h-6 transition-colors",
                         state.data[currentLightIndex] === 1 ? "text-white" : "text-white",
                       )}
                     />
                   </div>
                 )
               } else {
-                return <div key={colIndex} className="w-12 h-12" />
+                return <div key={colIndex} className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink" />
               }
             })}
             {rowIndex === lightPositions.length-1 && 
-            <Button onClick={() => handleRotate(2)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-12 h-12 rounded-full">
+            <Button onClick={() => handleRotate(2)} className="bg-white border border-gray-100 shadow-md shadow-gray-500 hover:bg-gray-100 text-black w-8 h-8 sm:w-12 sm:h-12 rounded-full">
           </Button>}
           </div>
         ))}
