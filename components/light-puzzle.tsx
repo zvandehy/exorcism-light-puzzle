@@ -274,7 +274,7 @@ function Light({ on }: { on: 0 | 1 }) {
     return (
       <div
         className={cn(
-          "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg duration-300 transition-all will-change-[background-color]",
+          "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg",
           on
             ? "bg-green-500"
             : "bg-red-500"
