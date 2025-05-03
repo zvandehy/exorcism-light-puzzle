@@ -170,6 +170,10 @@ export function LightPuzzle() {
 
     const vals = state.data as (0 | 1)[]
     console.log(vals)
+
+    const [x, setX] = useState(false)
+    useEffect(() => {setX(true)}, [])
+    if (!x) return null
   
     return (
       <div className="relative p-6 bg-gray-50 rounded-xl shadow-lg max-w-sm mx-auto">
@@ -185,7 +189,7 @@ export function LightPuzzle() {
     </div>
   </div>
 )}
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4 relative">
           <Button variant="outline" size="sm" onClick={reset} className="flex items-center gap-1">
             <RefreshCw className="w-4 h-4" /> New Puzzle
           </Button>
@@ -274,7 +278,7 @@ function Light({ on }: { on: 0 | 1 }) {
     return (
       <div
         className={cn(
-          "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg",
+          "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg transition-colors duration-300",
           on
             ? "bg-green-500"
             : "bg-red-500"
