@@ -169,6 +169,7 @@ export function LightPuzzle() {
       }
 
     const vals = state.data as (0 | 1)[]
+    console.log(vals)
   
     return (
       <div className="relative p-6 bg-gray-50 rounded-xl shadow-lg max-w-sm mx-auto">
@@ -273,10 +274,10 @@ function Light({ on }: { on: 0 | 1 }) {
     return (
       <div
         className={cn(
-          "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors duration-300",
+          "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg duration-300 transition-all will-change-[background-color]",
           on
-            ? "bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-            : "bg-red-500   shadow-[0_0_15px_rgba(239,68,68,0.7)]"
+            ? "bg-green-500"
+            : "bg-red-500"
         )}
       >
         <Lightbulb className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
